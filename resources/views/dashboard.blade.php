@@ -49,7 +49,7 @@
                                 Tanggal Update
                             </span>
                             <span class="block mb- text-2xl text-slate-900 dark:text-white font-medium">
-                                {{ $tgl->format('d-m-Y h:i') }}
+                                {{ $tgl->format('d-m-Y H:i') }}
                             </span>
                         </div>
                     </div>
