@@ -39,7 +39,25 @@
                         <x-input-error :messages="$errors->get('email')" class="mt-2"/>
                     </div>
 
-                    {{--Email input start--}}
+                    {{--Lokasi input start--}}
+                    <div class="input-area">
+                        <label for="lokasi" class="form-label">{{ __('Perangkat Daerah') }}</label>
+                        <select name="lokasi" class="form-control">
+                            <option value="" selected>
+                                {{ __('Perangkat Daerah') }}
+                            </option>
+                            @foreach($pedas as $peda)
+                                <option value="{{ $peda->lokasi }}">
+                                    {{ $peda->lokasi }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <iconify-icon class="absolute right-3 bottom-3 text-xl dark:text-white z-10"
+                                      icon="material-symbols:keyboard-arrow-down-rounded"></iconify-icon>
+                    </div>
+                    {{--Lokasi input end--}}
+
+                    {{--Password input start--}}
                     <div class="input-area">
                         <label for="password" class="form-label">{{ __('Password') }}</label>
                         <input name="password" type="password" id="password" class="form-control" placeholder="{{ __('Password') }}" >
@@ -47,6 +65,7 @@
                     </div>
 
                     {{--Password input end--}}
+
                     {{--Role input start--}}
                     <div class="input-area">
                         <label for="role" class="form-label">{{ __('Role') }}</label>

@@ -30,6 +30,9 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('dashboard-detail/{id}', [HomeController::class, 'detail'])->name('dashboard.detail');
     Route::get('dashboard-pegawai/{nip}', [HomeController::class, 'showPegawai'])->name('dashboard.pegawai');
 
+    Route::post('export/opd', [HomeController::class, 'exportOpd'])->name('export.opd');
+    Route::post('export/data', [HomeController::class, 'exportData'])->name('export.data');
+
     Route::get('data/pd/{id}/pegawai', [HomeController::class, 'getPegawai'])->name('data.pd.pegawai');
 
     // Locale

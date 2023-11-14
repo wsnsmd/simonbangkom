@@ -12,6 +12,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class GeneralSettingController extends Controller
 {
@@ -50,6 +51,9 @@ class GeneralSettingController extends Controller
      */
     public function show()
     {
+        if(!Auth::user()->hasRole(['super-admin', 'admin']))
+            abort(404);
+
         $breadcrumbsItems = [
             [
                 'name' => 'Settings',
@@ -72,6 +76,9 @@ class GeneralSettingController extends Controller
      */
     public function edit(GeneralSettings $generalSettings)
     {
+        if(!Auth::user()->hasRole(['super-admin', 'admin']))
+            abort(404);
+
         $breadcrumbsItems = [
             [
                 'name' => 'Settings',
@@ -111,6 +118,9 @@ class GeneralSettingController extends Controller
      */
     public function update(Request $request)
     {
+        if(!Auth::user()->hasRole(['super-admin', 'admin']))
+            abort(404);
+
         $this->envFileService->updateEnv($request);
 
         return back()->with(['message' => 'General settings updated successfully.', 'type' => 'success']);
@@ -128,6 +138,9 @@ class GeneralSettingController extends Controller
 
     public function logoUpdate(UpdateGeneralSettingRequest $request, GeneralSettings $logoSettings)
     {
+        if(!Auth::user()->hasRole(['super-admin', 'admin']))
+            abort(404);
+
         if ($request->hasFile('logo')) {
             $generalSetting = GeneralSetting::where('group', 'general-settings')
                 ->where('name', 'logo')

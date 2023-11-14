@@ -17,6 +17,18 @@
         <div class="card mt-5">
             <header class="card-header noborder">
                 <h3 class="font-medium text-lg text-black font-Inter dark:text-white text-center mb-5 lg:mb-0 lg:text-left">{{ $pd->lokasi }}</h3>
+                {{-- Excel Button start--}}
+                <div class="justify-center sm:justify-end flex  gap-3 items-center flex-wrap">
+                    <a class="shift-Away btn btn-sm inline-flex justify-center btn-success rounded-[25px] items-center !p-2.5" data-tippy-content="Export Excel" data-tippy-theme="dark" href="javascript:;" onclick="event.preventDefault(); document.getElementById('export').submit();">
+                        <iconify-icon icon="mdi:file-excel" class="text-lg mr-10"></iconify-icon> Excel
+                    </a>
+                    <form id="export" action="{{ route('export.opd') }}" method="post" style="display: none;">
+                        @csrf
+                        <input type="hidden" id="opd" name="opd" value="{{ $pd->lokasi }}">
+                        <input type="hidden" id="tahun" name="tahun" value="{{ session('apps_tahun') }}">
+                    </form>
+                </div>
+                {{-- Excel Button end --}}
             </header>
             <div class="card-body px-6 pb-6 -pt-10">
                 <div class="overflow-x-auto -mx-6 dashcode-data-table">

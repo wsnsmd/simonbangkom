@@ -41,6 +41,7 @@
             </li>
             @endcan
             <!-- Settings -->
+            @role(['super-admin', 'admin'])
             <li>
                 <a href="{{ route('general-settings.show') }}" class="navItem {{ (request()->is('general-settings*')) || (request()->is('users*')) || (request()->is('roles*')) || (request()->is('profiles*')) || (request()->is('permissions*')) ? 'active' : '' }}">
                     <span class="flex items-center">
@@ -49,6 +50,7 @@
                     </span>
                 </a>
             </li>
+            @endrole
         </ul>
         <!-- Upgrade Your Business Plan Card Start -->
         <div class="bg-slate-900 mb-10 mt-24 p-4 relative text-center rounded-2xl text-white" id="sidebar_bottom_wizard">

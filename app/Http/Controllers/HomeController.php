@@ -4,11 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Jppd;
 use App\Models\Bangkom;
+use App\Exports\BangkomExport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Yajra\DataTables\DataTables;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use DB;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Excel;
 
 // use DataTables;
 // use Yajra\DataTables\DataTables as DataTablesDataTables;
@@ -28,19 +36,32 @@ class HomeController extends Controller
             ],
         ];
 
-        $pd = Jppd::where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
-        $tgl = $pd->first()->created_at;
         $lokasi = [];
         $jp_rata = [];
         $warna = [];
-        $total_pns = Jppd::where('tahun', $this->tahun)->sum('jumlah_pegawai');
-        $average_jp = Jppd::where('tahun', $this->tahun)->avg('rata_rata_jp');
+
+        if(!Auth::user()->hasRole(['super-admin', 'admin']))
+        {
+            $opd = Auth::user()->lokasi;
+            $pd = Jppd::where('lokasi', $opd)->where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
+            $total_pns = Jppd::where('lokasi', $opd)->where('tahun', $this->tahun)->sum('jumlah_pegawai');
+            $average_jp = Jppd::where('lokasi', $opd)->where('tahun', $this->tahun)->avg('rata_rata_jp');
+        }
+        else
+        {
+            $pd = Jppd::where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
+            $total_pns = Jppd::where('tahun', $this->tahun)->sum('jumlah_pegawai');
+            $average_jp = Jppd::where('tahun', $this->tahun)->avg('rata_rata_jp');
+        }
+
         foreach($pd as $item)
         {
             array_push($lokasi, $item->lokasi);
             array_push($jp_rata, $item->rata_rata_jp);
             array_push($warna, $this->rand_color());
         }
+
+        $tgl = $pd->first()->created_at;
 
         return view('dashboard', [
             'pageTitle' => 'Dashboard',
@@ -57,6 +78,9 @@ class HomeController extends Controller
 
     public function refresh(Request $request)
     {
+        if(!Auth::user()->hasRole(['super-admin', 'admin']))
+            abort(404);
+
         try
         {
             DB::beginTransaction();
@@ -109,6 +133,12 @@ class HomeController extends Controller
     public function detail($id)
     {
         $pd = Jppd::where('id_skpd', $id)->where('tahun', $this->tahun)->first();
+        if(!Auth::user()->hasRole(['super-admin', 'admin']))
+        {
+            if((Auth::user()->lokasi != $pd->lokasi))
+                abort(404);
+        }
+
         $pegawai = Bangkom::where('tahun', $this->tahun)->where('opd', $pd->lokasi)->get();
 
         $breadcrumbsItems = [
@@ -151,6 +181,11 @@ class HomeController extends Controller
                     $res_bangkom = $req_bangkom->getBody();
                     $json_bangkom = json_decode($res_bangkom, true);
                     $bangkom = $json_bangkom['data'];
+                }
+                if(!Auth::user()->hasRole(['super-admin', 'admin']))
+                {
+                    if((Auth::user()->lokasi != $data_pegawai['skpd']))
+                        abort(404);
                 }
                 return view('dashboard_pegawai', compact('data_pegawai', 'bangkom'));
             }
@@ -207,5 +242,126 @@ class HomeController extends Controller
             $notifikasi = 'Terjadi kesalahan, silahkan diulang kembali!';
             response()->json($notifikasi);
         }
+    }
+
+    public function exportData(Request $request)
+    {
+        $pd = Jppd::where('tahun', $request->tahun)->orderBy('rata_rata_jp', 'desc')->get();
+        $styleArray = array(
+            'font'  => array(
+                 'size'  => 11,
+                 'name'  => 'Arial'
+             ));
+
+        $spreadsheet = new Spreadsheet();
+        $spreadsheet->getProperties()->setCreator('BPSDM Prov. Kaltim')->setLastModifiedBy('BPSDM Prov. Kaltim');
+        $spreadsheet->getDefaultStyle()->applyFromArray($styleArray);
+        $activeWorksheet = $spreadsheet->getActiveSheet();
+        $activeWorksheet->setCellValue('A1', 'REKAPITULASI PERANGKAT DAERAH');
+        $activeWorksheet->setCellValue('A3', 'Update terakhir: ');
+        $activeWorksheet->setCellValue('A5', '#');
+        $activeWorksheet->setCellValue('B5', 'PERANGKAT DAERAH');
+        $activeWorksheet->setCellValue('C5', 'JUMLAH PEGAWAI');
+        $activeWorksheet->setCellValue('D5', 'TOTAL JP');
+        $activeWorksheet->setCellValue('E5', 'RATA-RATA JP');
+
+        $activeWorksheet->mergeCells('A1:E1');
+        $activeWorksheet->mergeCells('A3:E3');
+        $activeWorksheet->getStyle('A1')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('A5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('B5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('C5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('D5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('E5')->getFont()->setBold(true);
+        $activeWorksheet->getColumnDimension('A')->setWidth(4);
+        $activeWorksheet->getColumnDimension('B')->setWidth(80);
+        $activeWorksheet->getColumnDimension('C')->setWidth(20);
+        $activeWorksheet->getColumnDimension('D')->setWidth(20);
+        $activeWorksheet->getColumnDimension('E')->setWidth(20);
+        $activeWorksheet->getRowDimension(5)->setRowHeight(25);
+
+        $no = 1;
+        $row = 6;
+
+        foreach($pd as $p)
+        {
+            $activeWorksheet->setCellValue('A'.$row, $no++);
+            $activeWorksheet->setCellValue('B'.$row, $p->lokasi);
+            $activeWorksheet->setCellValue('C'.$row, $p->jumlah_pegawai);
+            $activeWorksheet->setCellValue('D'.$row, $p->total_jp);
+            $activeWorksheet->setCellValue('E'.$row, $p->rata_rata_jp);
+            $activeWorksheet->getRowDimension($row++)->setRowHeight(15);
+        }
+
+        $activeWorksheet->setCellValue('A3', 'Update terakhir: ' . $p->created_at);
+        $activeWorksheet->getStyle('A3')->getFont()->setItalic(true);
+
+        $activeWorksheet->getStyle('A5:E'.$row-1)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($path = storage_path('simonbangkom-'. time() . '.xlsx'));
+        return response()->download($path)->deleteFileAfterSend();
+    }
+
+    public function exportOpd(Request $request)
+    {
+        $opd = $request->opd;
+        $tahun = $request->tahun;
+
+        $pegawai = Bangkom::where('tahun', $tahun)->where('opd', $opd)->get();
+
+        $styleArray = array(
+            'font'  => array(
+                 'size'  => 11,
+                 'name'  => 'Arial'
+             ));
+
+        $spreadsheet = new Spreadsheet();
+        $spreadsheet->getProperties()->setCreator($opd)->setLastModifiedBy($opd);
+        $spreadsheet->getDefaultStyle()->applyFromArray($styleArray);
+        $activeWorksheet = $spreadsheet->getActiveSheet();
+        $activeWorksheet->setCellValue('A1', $opd);
+        $activeWorksheet->setCellValue('A3', 'Update terakhir: ');
+        $activeWorksheet->setCellValue('A5', '#');
+        $activeWorksheet->setCellValue('B5', 'NIP');
+        $activeWorksheet->setCellValue('C5', 'NAMA');
+        $activeWorksheet->setCellValue('D5', 'JABATAN');
+        $activeWorksheet->setCellValue('E5', 'TOTAL JP');
+
+        $activeWorksheet->mergeCells('A1:E1');
+        $activeWorksheet->mergeCells('A3:E3');
+        $activeWorksheet->getStyle('A1')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('A5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('B5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('C5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('D5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('E5')->getFont()->setBold(true);
+        $activeWorksheet->getColumnDimension('A')->setWidth(4);
+        $activeWorksheet->getColumnDimension('B')->setWidth(20);
+        $activeWorksheet->getColumnDimension('C')->setWidth(35);
+        $activeWorksheet->getColumnDimension('D')->setWidth(70);
+        $activeWorksheet->getColumnDimension('E')->setWidth(10);
+        $activeWorksheet->getRowDimension(5)->setRowHeight(25);
+
+        $no = 1;
+        $row = 6;
+        foreach($pegawai as $p)
+        {
+            $nama = (empty($p->glr_depan) ? '' : trim($p->glr_depan)) . trim($p->nama) . (!empty($p->glr_belakang) ? ', ' . $p->glr_belakang : '');
+            $activeWorksheet->setCellValue('A'.$row, $no++);
+            $activeWorksheet->setCellValueExplicit('B'.$row, $p->nip_baru, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+            $activeWorksheet->setCellValue('C'.$row, $nama);
+            $activeWorksheet->setCellValue('D'.$row, strtoupper($p->jabatan));
+            $activeWorksheet->setCellValue('E'.$row, $p->total_jp);
+            $activeWorksheet->getRowDimension($row++)->setRowHeight(15);
+        }
+        $activeWorksheet->setCellValue('A3', 'Update terakhir: ' . $p->created_at);
+        $activeWorksheet->getStyle('A3')->getFont()->setItalic(true);
+
+        $activeWorksheet->getStyle('A5:E'.$row-1)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($path = storage_path('simonbangkom-'. time() . '.xlsx'));
+        return response()->download($path)->deleteFileAfterSend();
+
+        // return Excel::download(new BangkomExport($pegawai), 'test.xlsx');
     }
 }

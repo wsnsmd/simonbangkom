@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('phone')->nullable()->after('email');
             $table->string('post_code')->nullable()->after('phone');
             $table->string('city')->nullable()->after('post_code');
-            $table->string('country')->nullable()->after('city');
+            $table->string('lokasi')->nullable()->after('city');
         });
     }
 

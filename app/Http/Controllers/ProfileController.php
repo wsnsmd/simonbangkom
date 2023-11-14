@@ -75,19 +75,28 @@ class ProfileController extends Controller
      */
     public function update(UpdateProfileRequest $request, User $user)
     {
-        $user->update($request->safe(['name', 'phone', 'post_code', 'city', 'country']));
+        if (!$request->password) {
+            $user->update($request->safe(['name', 'phone', 'post_code', 'city', 'country']));
+        }
+        else {
+            $user->update($request->safe(['name', 'phone', 'post_code', 'city', 'country'])
+            + [
+                'password' => bcrypt($request->validated(['password'])),
+            ]);
+        }
+
 
         // sends verification email if email has changed
-        if( $user->email !== $request->validated('email') ) {
-            $user->newEmail($request->validated('email'));
-        }
+        // if( $user->email !== $request->validated('email') ) {
+        //     $user->newEmail($request->validated('email'));
+        // }
 
         if( $request->hasFile('photo')) {
             $user->clearMediaCollection('profile-image');
             $user->addMediaFromRequest('photo')->toMediaCollection('profile-image');
         }
 
-        return to_route('profiles.index')->with('message', 'Profile updated successfully');
+        return to_route('profiles.index')->with('message', 'Profil berhasil disimpan');
     }
 
     /**

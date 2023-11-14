@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
+use App\Models\Jppd;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -12,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\QueryBuilder\QueryBuilder;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -30,6 +32,9 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        if(!Auth::user()->hasRole(['super-admin', 'admin']))
+            abort(404);
+
         $breadcrumbsItems = [
             [
                 'name' => 'Settings',
@@ -48,7 +53,7 @@ class UserController extends Controller
         $sort = $request->get('sort');
 
         $users = QueryBuilder::for(User::class)
-            ->allowedSorts(['name', 'email','phone', 'post_code', 'city', 'country'])
+            ->allowedSorts(['name', 'email','phone', 'post_code', 'city', 'lokasi'])
             ->where('name', 'like', "%$q%")
             ->orWhere('email', 'like', "%$q%")
             ->withoutAuthUser()
@@ -72,6 +77,9 @@ class UserController extends Controller
      */
     public function create()
     {
+        if(!Auth::user()->hasRole(['super-admin', 'admin']))
+            abort(404);
+
         $breadcrumbsItems = [
             [
                 'name' => 'Users',
@@ -86,8 +94,10 @@ class UserController extends Controller
         ];
 
         $roles = Role::all();
+        $pedas = Jppd::all();
         return view('users.create', [
             'roles' => $roles,
+            'pedas' => $pedas,
             'breadcrumbItems' => $breadcrumbsItems,
             'pageTitle' => 'Create User'
         ]);
@@ -102,9 +112,13 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        $user = User::create($request->safe(['name', 'username', 'email'])
+        if(!Auth::user()->hasRole(['super-admin', 'admin']))
+            abort(404);
+
+        $user = User::create($request->safe(['name', 'username', 'email', 'lokasi'])
             + [
                 'password' => bcrypt($request->validated(['password'])),
+                'lokasi' => $request->lokasi,
                 'email_verified_at' => now(),
             ]);
         $user->assignRole([$request->validated('role')]);
@@ -163,10 +177,11 @@ class UserController extends Controller
             ],
         ];
 
-
         $roles = Role::all();
+        $pedas = Jppd::all();
         return view('users.edit', [
             'user' => $user,
+            'pedas' => $pedas,
             'roles' => $roles,
             'breadcrumbItems' => $breadcrumbsItems,
             'pageTitle' => 'Edit User',
@@ -183,8 +198,19 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $user->update($request->safe(['name', 'email'])
-            + ['password' => bcrypt($request->validated(['password']))]);
+        if (!$request->password) {
+            $user->update($request->safe(['name', 'email'])
+            + [
+                'lokasi' => $request->lokasi,
+            ]);
+        }
+        else {
+            $user->update($request->safe(['name', 'email'])
+            + [
+                'password' => bcrypt($request->validated(['password'])),
+                'lokasi' => $request->lokasi,
+            ]);
+        }
 
         $user->syncRoles([$request->validated(['role'])]);
 
@@ -200,6 +226,9 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        if(!Auth::user()->hasRole(['super-admin', 'admin']))
+            abort(404);
+
         $user->delete();
 
         return to_route('users.index')->with('message', 'User deleted successfully');

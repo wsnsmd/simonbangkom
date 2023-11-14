@@ -57,7 +57,7 @@
                                 </div>
                                 <div class="flex-1">
                                     <div class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
-                                        PHONE
+                                        TELP / HANDPHONE
                                     </div>
                                     <a href="{{ auth()->user()->phone }}" class="text-base text-slate-600 dark:text-slate-50">
                                         {{ auth()->user()->phone ?: 'N/A' }}
@@ -71,11 +71,11 @@
                                 </div>
                                 <div class="flex-1">
                                     <div class="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
-                                        LOCATION
+                                        LOKASI
                                     </div>
                                     <div class="text-base text-slate-600 dark:text-slate-50 break-words">
                                         <?php
-                                        if (!auth()->user()->city && !auth()->user()->post_code && !auth()->user()->country) {
+                                        if (!auth()->user()->city && !auth()->user()->post_code && !auth()->user()->lokasi) {
                                             $str = 'N/A';
                                         } else {
                                             $address = [];
@@ -85,8 +85,8 @@
                                             if (auth()->user()->post_code) {
                                                 array_push($address, auth()->user()->post_code);
                                             }
-                                            if (auth()->user()->country) {
-                                                array_push($address, auth()->user()->country);
+                                            if (auth()->user()->lokasi) {
+                                                array_push($address, auth()->user()->lokasi);
                                             }
 
                                             $str = '';
@@ -109,7 +109,7 @@
             <div class="lg:col-span-8 col-span-12">
                 <div class="card ">
                     <header class="card-header">
-                        <h4 class="card-title">Edit Profile
+                        <h4 class="card-title">Edit Profil
                         </h4>
                     </header>
                     <div class="card-body px-5 py-6">
@@ -135,10 +135,10 @@
                             <div class="grid sm:grid-cols-2 gap-5">
                                 <div class="input-area">
                                     <label for="name" class="form-label">
-                                        {{ __('Name') }}
+                                        {{ __('Nama') }}
                                     </label>
                                     <input name="name" type="text" id="name" class="form-control"
-                                        placeholder="{{ __('Enter Your Name') }}" required
+                                        placeholder="{{ __('Nama...') }}" required
                                         value="{{ auth()->user()->name }}">
                                     <x-input-error :messages="$errors->get('name')" class="mt-2" />
                                 </div>
@@ -147,45 +147,40 @@
                                         {{ __('Email') }}
                                     </label>
                                     <input name="email" type="email" id="email" class="form-control"
-                                        placeholder="{{ __('Enter Your Email') }}" required
+                                        placeholder="{{ __('Email...') }}" required
                                         value="{{ auth()->user()->email }}">
                                     <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                 </div>
                                 <div class="input-area">
                                     <label for="phone" class="form-label">
-                                        {{ __('Phone') }}
+                                        {{ __('Telp / Handphone') }}
                                     </label>
                                     <input name="phone" type="tel" id="phone" class="form-control"
-                                        placeholder="{{ __('Phone') }}" value="{{ auth()->user()->phone }}">
+                                        placeholder="{{ __('Telp / Handphone...') }}" value="{{ auth()->user()->phone }}">
                                     <x-input-error :messages="$errors->get('phone')" class="mt-2" />
                                 </div>
                                 <div class="input-area">
-                                    <label for="postcode" class="form-label">
-                                        {{ __('Post Code') }}
-                                    </label>
-                                    <input name="post_code" type="text" id="post" class="form-control"
-                                        placeholder="{{ __('Post Code') }}" value="{{ auth()->user()->post_code }}">
-                                    <x-input-error :messages="$errors->get('post_code')" class="mt-2" />
-                                </div>
-                                <div class="input-area">
                                     <label for="state" class="form-label">
-                                        {{ __('State / City') }}
+                                        {{ __('Kota') }}
                                     </label>
                                     <input name="city" type="text" id="state" class="form-control"
-                                        placeholder="{{ __('State / City') }}" value="{{ auth()->user()->city }}">
+                                        placeholder="{{ __('Kota...') }}" value="{{ auth()->user()->city }}">
                                     <x-input-error :messages="$errors->get('city')" class="mt-2" />
                                 </div>
                                 <div class="input-area">
-                                    <label for="country" class="form-label">
-                                        {{ __('Country') }}
+                                    <label for="password" class="form-label">
+                                        {{ __('Password') }}
                                     </label>
-                                    <input name="country" type="text" id="country" class="form-control"
-                                        placeholder="{{ __('Country') }}" value="{{ auth()->user()->country }}">
-                                    <x-input-error :messages="$errors->get('country')" class="mt-2" />
+                                    <input name="password" type="password" id="password" class="form-control"
+                                        placeholder="{{ __('Password...') }}" value="">
+                                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                                    <span class="text-xs text-gray-400 space-y-1 pl-2">
+                                        * Kosongkan jika tidak ingin merubah password.
+                                    </span>
                                 </div>
                                 <div class="input-area">
-                                    <label for="country" class="form-label">
-                                        {{ __('Photo') }}
+                                    <label for="lokasi" class="form-label">
+                                        {{ __('Foto') }}
                                     </label>
                                     <input onchange="imagePreview(event, 'profilePagePreviewId')" name="photo"
                                         type="file" placeholder="Default input"
@@ -195,8 +190,8 @@
                                 </div>
                             </div>
                             <div class="flex justify-end">
-                                <button type="submit" class="btn btn-dark mt-3">
-                                    {{ __('Save Changes') }}
+                                <button type="submit" class="btn btn-sm btn-dark mt-3">
+                                    {{ __('Simpan') }}
                                 </button>
                             </div>
                         </form>

@@ -31,6 +31,7 @@ class UpdateProfileRequest extends FormRequest
             'city' => ['nullable', 'string', 'max:255'],
             'country' => ['nullable', 'string', 'max:255'],
             'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'password' => ['nullable','string','min:8'],
         ];
     }
 }
