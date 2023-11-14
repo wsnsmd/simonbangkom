@@ -298,7 +298,7 @@ class HomeController extends Controller
 
         $activeWorksheet->getStyle('A5:E'.$row-1)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         $writer = new Xlsx($spreadsheet);
-        $writer->save($path = storage_path('simonbangkom-'. time() . '.xlsx'));
+        $writer->save($path = storage_path('simonbangkom-rekap-'. time() . '.xlsx'));
         return response()->download($path)->deleteFileAfterSend();
     }
 
@@ -359,7 +359,7 @@ class HomeController extends Controller
 
         $activeWorksheet->getStyle('A5:E'.$row-1)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         $writer = new Xlsx($spreadsheet);
-        $writer->save($path = storage_path('simonbangkom-'. time() . '.xlsx'));
+        $writer->save($path = storage_path('simonbangkom-opd-'. time() . '.xlsx'));
         return response()->download($path)->deleteFileAfterSend();
 
         // return Excel::download(new BangkomExport($pegawai), 'test.xlsx');
