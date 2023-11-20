@@ -14,9 +14,9 @@
         {{--Alert end--}}
 
         <div class="card p-6">
-            <div class="grid grid-cols-4 gap-5">
+            <div class="grid grid-cols-6 gap-5">
                 <div class="xl:col-span-8 col-span-12">
-                    <div class="grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-3">
+                    <div class="grid md:grid-cols-6 sm:grid-cols-2 grid-cols-1 gap-3">
                         <div class=" bg-info-500 rounded-md p-4 bg-opacity-[0.15] dark:bg-opacity-50 text-center">
                             <div class="text-info-500 mx-auto h-10 w-10 flex flex-col items-center justify-center rounded-full bg-white text-2xl mb-4">
                                 <iconify-icon icon="heroicons:users-20-solid"></iconify-icon>
@@ -26,6 +26,42 @@
                             </span>
                             <span class="block mb- text-2xl text-slate-900 dark:text-white font-medium">
                                 {{ number_format($total_pns, 0, ',', '.') }}
+                            </span>
+                        </div>
+
+                        <div class=" bg-green-500 rounded-md p-4 bg-opacity-[0.15] dark:bg-opacity-50 text-center">
+                            <div class="text-green-500 mx-auto h-10 w-10 flex flex-col items-center justify-center rounded-full bg-white text-2xl mb-4">
+                                <iconify-icon icon="heroicons:user-group-20-solid"></iconify-icon>
+                            </div>
+                            <span class="block text-sm text-slate-600 font-medium dark:text-white mb-1">
+                                Total PNS >= 20 JP
+                            </span>
+                            <span class="block mb- text-2xl text-slate-900 dark:text-white font-medium">
+                                {{ number_format($pns_gt_20, 0, ',', '.') }}
+                            </span>
+                        </div>
+
+                        <div class=" bg-red-500 rounded-md p-4 bg-opacity-[0.15] dark:bg-opacity-50 text-center">
+                            <div class="text-red-500 mx-auto h-10 w-10 flex flex-col items-center justify-center rounded-full bg-white text-2xl mb-4">
+                                <iconify-icon icon="heroicons:user-group-20-solid"></iconify-icon>
+                            </div>
+                            <span class="block text-sm text-slate-600 font-medium dark:text-white mb-1">
+                                Total PNS < 20 JP
+                            </span>
+                            <span class="block mb- text-2xl text-slate-900 dark:text-white font-medium">
+                                {{ number_format($pns_lt_20, 0, ',', '.') }}
+                            </span>
+                        </div>
+
+                        <div class=" bg-info-500 rounded-md p-4 bg-opacity-[0.15] dark:bg-opacity-50 text-center">
+                            <div class="text-info-500 mx-auto h-10 w-10 flex flex-col items-center justify-center rounded-full bg-white text-2xl mb-4">
+                                <iconify-icon icon="heroicons:receipt-percent-20-solid"></iconify-icon>
+                            </div>
+                            <span class="block text-sm text-slate-600 font-medium dark:text-white mb-1">
+                                Persentase
+                            </span>
+                            <span class="block mb- text-2xl text-slate-900 dark:text-white font-medium">
+                                {{ number_format($pns_gt_20 / $total_pns * 100, 2, ',', '.') }}%
                             </span>
                         </div>
 
@@ -41,8 +77,8 @@
                             </span>
                         </div>
 
-                        <div class=" bg-success-500 rounded-md p-4 bg-opacity-[0.15] dark:bg-opacity-50 text-center">
-                            <div class="text-success-500 mx-auto h-10 w-10 flex flex-col items-center justify-center rounded-full bg-white text-2xl mb-4">
+                        <div class=" bg-gray-500 rounded-md p-4 bg-opacity-[0.15] dark:bg-opacity-50 text-center">
+                            <div class="text-gray-500 mx-auto h-10 w-10 flex flex-col items-center justify-center rounded-full bg-white text-2xl mb-4">
                                 <iconify-icon icon="heroicons:clock"></iconify-icon>
                             </div>
                             <span class="block text-sm text-slate-600 font-medium dark:text-white mb-1">
@@ -68,7 +104,7 @@
                         <iconify-icon icon="mdi:refresh" class="text-xl "></iconify-icon>
                     </a>
                     <a class="shift-Away btn btn-sm inline-flex justify-center btn-success rounded-[25px] items-center !p-2.5" data-tippy-content="Export Excel" data-tippy-theme="dark" href="javascript:;" onclick="event.preventDefault(); document.getElementById('export').submit();">
-                        <iconify-icon icon="mdi:file-excel" class="text-lg mr-10"></iconify-icon> Excel
+                        <iconify-icon icon="mdi:file-excel" class="text-lg mr-2"></iconify-icon> Excel
                     </a>
                     <form id="export" action="{{ route('export.data') }}" method="post" style="display: none;">
                         @csrf
@@ -94,11 +130,20 @@
                                             {{ __('JUMLAH PEGAWAI') }}
                                         </th>
                                         <th scope="col" class="table-th w-44">
+                                            {{ __('JUMLAH PEGAWAI JP >= 20') }}
+                                        </th>
+                                        <th scope="col" class="table-th w-44">
+                                            {{ __('JUMLAH PEGAWAI JP < 20') }}
+                                        </th>
+                                        <th scope="col" class="table-th w-44">
+                                            {{ __('PERSENTASE PEGAWAI') }}
+                                        </th>
+                                        <th scope="col" class="table-th w-44">
                                             {{ __('TOTAL JP') }}
                                         </th>
                                         <th scope="col" class="table-th w-44">
                                             {{ __('RATA-RATA JP') }}
-                                        </th>
+                                        </th>                                        
                                         <th scope="col" class="table-th w-10">
                                             {{ __('AKSI') }}
                                         </th>
@@ -106,7 +151,7 @@
                                 </thead>
                                 <tbody class="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700">
 
-                                    @forelse($pd as $key => $item)
+                                    @forelse($pd2 as $key => $item)
                                     <tr class="border border-slate-100 even:bg-slate-50 dark:border-slate-900 relative">
                                         <td class="table-td sticky left-0">
                                             {{ $loop->iteration }}
@@ -118,6 +163,19 @@
                                             {{ $item['jumlah_pegawai'] }}
                                         </td>
                                         <td class="table-td">
+                                            {{ $item['jp_lebih_20'] }}
+                                        </td>
+                                        <td class="table-td">
+                                            {{ $item['jp_kurang_20'] }}
+                                        </td>
+                                        <td class="table-td">
+                                            @if($item['persentase'] >= 50)
+                                            <span class="badge bg-primary-500 text-white capitalize">{{ round($item['persentase']) }} %</span>
+                                            @else
+                                            <span class="badge bg-danger-500 text-white capitalize">{{ round($item['persentase']) }} %</span>
+                                            @endif
+                                        </td>                                        
+                                        <td class="table-td">
                                             {{ $item['total_jp'] }}
                                         </td>
                                         <td class="table-td">
@@ -126,7 +184,7 @@
                                             @else
                                             <span class="badge bg-danger-500 text-white capitalize">{{ $item['rata_rata_jp'] }}</span>
                                             @endif
-                                        </td>
+                                        </td>                                        
                                         <td class="table-td">
                                             <div class="action-btns space-x-2 flex">
                                                 <a class="action-btn" href="{{ route('dashboard.detail', $item['id_skpd']) }}" data-tippy-content="Detail" data-tippy-theme="dark">
@@ -154,7 +212,17 @@
 
         <div class="card mt-5">
             <header class="card-header">
-                <h4 class="card-title">Data Grafis
+                <h4 class="card-title">Data Grafis Persentase
+                </h4>
+            </header>
+            <div class="card-body px-6 pb-6">
+                <div id="barchart2" class="barchart"></div>
+            </div>
+        </div>
+
+        <div class="card mt-5">
+            <header class="card-header">
+                <h4 class="card-title">Data Grafis Rata-Rata JP
                 </h4>
             </header>
             <div class="card-body px-6 pb-6">
@@ -185,7 +253,7 @@
 
         var options = {
             series: [{
-                data: @json($jp_rata),
+                data: @json($grafik1['jp_rata']),
             }],
             chart: {
                 type: 'bar',
@@ -215,7 +283,7 @@
                     }
                 }],
             },
-            colors: @json($warna),
+            colors: @json($grafik1['warna']),
             dataLabels: {
                 enabled: true,
                 textAnchor: 'start',
@@ -231,7 +299,63 @@
                 }
             },
             xaxis: {
-                categories: @json($lokasi),
+                categories: @json($grafik1['lokasi']),
+            },
+            yaxis: {
+                labels: {
+                    show: false
+                }
+            },
+            tooltip: {
+                theme: 'dark',
+                x: {
+                    show: true
+                },
+                y: {
+                    title: {
+                        formatter: function() {
+                            return ''
+                        }
+                    }
+                }
+            }
+        };
+
+        var options2 = {
+            series: [{
+                data: @json($grafik2['persentase']),
+            }],
+            chart: {
+                type: 'bar',
+                height: 1000
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 2,
+                    horizontal: true,
+                    distributed: true,
+                    dataLabels: {
+                        position: 'bottom'
+                    },
+                }
+            },
+            colors: @json($grafik2['warna']),
+            dataLabels: {
+                enabled: true,
+                textAnchor: 'start',
+                style: {
+                    colors: ['#fff']
+                },
+                formatter: function(val, opt) {
+                    return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val
+                },
+                offsetX: 0,
+                dropShadow: {
+                    enabled: true
+                }
+            },
+            xaxis: {
+                categories: @json($grafik2['lokasi']),
             },
             yaxis: {
                 labels: {
@@ -254,7 +378,9 @@
         };
 
         var chart = new ApexCharts(document.querySelector("#barchart"), options);
+        var chart_persentase = new ApexCharts(document.querySelector("#barchart2"), options2);
         chart.render();
+        chart_persentase.render();
     </script>
     @endpush
 </x-app-layout>

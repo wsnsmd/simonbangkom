@@ -20,7 +20,7 @@
                 {{-- Excel Button start--}}
                 <div class="justify-center sm:justify-end flex  gap-3 items-center flex-wrap">
                     <a class="shift-Away btn btn-sm inline-flex justify-center btn-success rounded-[25px] items-center !p-2.5" data-tippy-content="Export Excel" data-tippy-theme="dark" href="javascript:;" onclick="event.preventDefault(); document.getElementById('export').submit();">
-                        <iconify-icon icon="mdi:file-excel" class="text-lg mr-10"></iconify-icon> Excel
+                        <iconify-icon icon="mdi:file-excel" class="text-lg mr-2"></iconify-icon> Excel
                     </a>
                     <form id="export" action="{{ route('export.opd') }}" method="post" style="display: none;">
                         @csrf

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Jppd;
 use App\Models\Bangkom;
+use App\Models\ViewJppd;
 use App\Exports\BangkomExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,29 +37,46 @@ class HomeController extends Controller
             ],
         ];
 
-        $lokasi = [];
-        $jp_rata = [];
-        $warna = [];
+        $grafik1['lokasi'] = [];
+        $grafik1['jp_rata'] = [];
+        $grafik1['warna'] = [];
+        $grafik2['lokasi'] = [];
+        $grafik2['persentase'] = [];
+        $grafik2['warna'] = [];
 
         if(!Auth::user()->hasRole(['super-admin', 'admin']))
         {
             $opd = Auth::user()->lokasi;
-            $pd = Jppd::where('lokasi', $opd)->where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
+            $pd = ViewJppd::where('lokasi', $opd)->where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
+            $pd2 = ViewJppd::where('lokasi', $opd)->where('tahun', $this->tahun)->orderBy('persentase', 'desc')->get();
             $total_pns = Jppd::where('lokasi', $opd)->where('tahun', $this->tahun)->sum('jumlah_pegawai');
             $average_jp = Jppd::where('lokasi', $opd)->where('tahun', $this->tahun)->avg('rata_rata_jp');
+            $pns_gt_20 = ViewJppd::where('lokasi', $opd)->where('tahun', $this->tahun)->sum('jp_lebih_20');
+            $pns_lt_20 = ViewJppd::where('lokasi', $opd)->where('tahun', $this->tahun)->sum('jp_kurang_20');
         }
         else
         {
-            $pd = Jppd::where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
+            // $pd = Jppd::where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
+            $pd = ViewJppd::where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
+            $pd2 = ViewJppd::where('tahun', $this->tahun)->orderBy('persentase', 'desc')->get();
             $total_pns = Jppd::where('tahun', $this->tahun)->sum('jumlah_pegawai');
             $average_jp = Jppd::where('tahun', $this->tahun)->avg('rata_rata_jp');
+            $pns_gt_20 = ViewJppd::where('tahun', $this->tahun)->sum('jp_lebih_20');
+            $pns_lt_20 = ViewJppd::where('tahun', $this->tahun)->sum('jp_kurang_20');
         }
 
         foreach($pd as $item)
         {
-            array_push($lokasi, $item->lokasi);
-            array_push($jp_rata, $item->rata_rata_jp);
-            array_push($warna, $this->rand_color());
+            array_push($grafik1['lokasi'], $item->lokasi);
+            array_push($grafik1['jp_rata'], $item->rata_rata_jp);
+            array_push($grafik1['warna'], $this->rand_color());
+        }
+
+        foreach($pd2 as $item)
+        {
+            array_push($grafik2['lokasi'], $item->lokasi);
+            array_push($grafik2['persentase'], round($item->persentase, 2));
+            array_push($grafik2['warna'], $this->rand_color());
         }
 
         $tgl = $pd->first()->created_at;
@@ -67,12 +85,14 @@ class HomeController extends Controller
             'pageTitle' => 'Dashboard',
             'breadcrumbItems' => $breadcrumbsItems,
             'pd' => $pd,
-            'lokasi' => $lokasi,
-            'jp_rata' => $jp_rata,
-            'warna' => $warna,
+            'pd2' => $pd2,
             'average_jp' => $average_jp,
             'total_pns' => $total_pns,
             'tgl' => $tgl,
+            'pns_gt_20' => $pns_gt_20,
+            'pns_lt_20' => $pns_lt_20,
+            'grafik1' => $grafik1,
+            'grafik2' => $grafik2,
         ]);
     }
 
@@ -246,7 +266,7 @@ class HomeController extends Controller
 
     public function exportData(Request $request)
     {
-        $pd = Jppd::where('tahun', $request->tahun)->orderBy('rata_rata_jp', 'desc')->get();
+        $pd = ViewJppd::where('tahun', $request->tahun)->orderBy('persentase', 'desc')->get();
         $styleArray = array(
             'font'  => array(
                  'size'  => 11,
@@ -262,23 +282,33 @@ class HomeController extends Controller
         $activeWorksheet->setCellValue('A5', '#');
         $activeWorksheet->setCellValue('B5', 'PERANGKAT DAERAH');
         $activeWorksheet->setCellValue('C5', 'JUMLAH PEGAWAI');
-        $activeWorksheet->setCellValue('D5', 'TOTAL JP');
-        $activeWorksheet->setCellValue('E5', 'RATA-RATA JP');
+        $activeWorksheet->setCellValue('D5', 'JUMLAH PEGAWAI JP >= 20');
+        $activeWorksheet->setCellValue('E5', 'JUMLAH PEGAWAI JP < 20');
+        $activeWorksheet->setCellValue('F5', 'PERSENTASE');
+        $activeWorksheet->setCellValue('G5', 'TOTAL JP');
+        $activeWorksheet->setCellValue('H5', 'RATA-RATA JP');
 
-        $activeWorksheet->mergeCells('A1:E1');
-        $activeWorksheet->mergeCells('A3:E3');
+        $activeWorksheet->mergeCells('A1:H1');
+        $activeWorksheet->mergeCells('A3:H3');
         $activeWorksheet->getStyle('A1')->getFont()->setBold(true);
         $activeWorksheet->getStyle('A5')->getFont()->setBold(true);
         $activeWorksheet->getStyle('B5')->getFont()->setBold(true);
         $activeWorksheet->getStyle('C5')->getFont()->setBold(true);
         $activeWorksheet->getStyle('D5')->getFont()->setBold(true);
         $activeWorksheet->getStyle('E5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('F5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('G5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('H5')->getFont()->setBold(true);
         $activeWorksheet->getColumnDimension('A')->setWidth(4);
         $activeWorksheet->getColumnDimension('B')->setWidth(80);
         $activeWorksheet->getColumnDimension('C')->setWidth(20);
         $activeWorksheet->getColumnDimension('D')->setWidth(20);
         $activeWorksheet->getColumnDimension('E')->setWidth(20);
-        $activeWorksheet->getRowDimension(5)->setRowHeight(25);
+        $activeWorksheet->getColumnDimension('F')->setWidth(20);
+        $activeWorksheet->getColumnDimension('G')->setWidth(20);
+        $activeWorksheet->getColumnDimension('H')->setWidth(20);
+        $activeWorksheet->getRowDimension(5)->setRowHeight(35);
+        $activeWorksheet->getStyle('A5:H5')->getAlignment()->setWrapText(true);
 
         $no = 1;
         $row = 6;
@@ -288,15 +318,18 @@ class HomeController extends Controller
             $activeWorksheet->setCellValue('A'.$row, $no++);
             $activeWorksheet->setCellValue('B'.$row, $p->lokasi);
             $activeWorksheet->setCellValue('C'.$row, $p->jumlah_pegawai);
-            $activeWorksheet->setCellValue('D'.$row, $p->total_jp);
-            $activeWorksheet->setCellValue('E'.$row, $p->rata_rata_jp);
+            $activeWorksheet->setCellValue('D'.$row, $p->jp_lebih_20);
+            $activeWorksheet->setCellValue('E'.$row, $p->jp_kurang_20);
+            $activeWorksheet->setCellValue('F'.$row, round($p->persentase, 2));
+            $activeWorksheet->setCellValue('G'.$row, $p->total_jp);
+            $activeWorksheet->setCellValue('H'.$row, $p->rata_rata_jp);
             $activeWorksheet->getRowDimension($row++)->setRowHeight(15);
         }
 
         $activeWorksheet->setCellValue('A3', 'Update terakhir: ' . $p->created_at);
         $activeWorksheet->getStyle('A3')->getFont()->setItalic(true);
 
-        $activeWorksheet->getStyle('A5:E'.$row-1)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $activeWorksheet->getStyle('A5:H'.$row-1)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         $writer = new Xlsx($spreadsheet);
         $writer->save($path = storage_path('simonbangkom-rekap-'. time() . '.xlsx'));
         return response()->download($path)->deleteFileAfterSend();
