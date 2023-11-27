@@ -106,13 +106,10 @@ class HomeController extends Controller
             DB::beginTransaction();
             $client = new Client(['http_errors' => false, 'verify' => false]);
 
-            $request_pd = $client->get(env('SIMPEG_JP_ALLPD') . $this->tahun . '?api_token=' . env('SIMPEG_KEY'), ['timeout' => 120]);
             $request_pns = $client->get(env('SIMPEG_JP_ALL_PNS') . $this->tahun . '?api_token=' . env('SIMPEG_KEY'), ['timeout' => 120]);
-            if($request_pd->getStatusCode() == 200 && $request_pns->getStatusCode() == 200)
+            if($request_pns->getStatusCode() == 200)
             {
-                $result_pd = $request_pd->getBody();
                 $result_pns = $request_pns->getBody();
-                $pd = json_decode($result_pd, true);
                 $json_pns = json_decode($result_pns, true);
                 $created_at = now();
 
@@ -126,16 +123,34 @@ class HomeController extends Controller
                     array_push($pns, $buffer);
                 }
 
-                Jppd::where('tahun', $this->tahun)->delete();
-                Jppd::insert($pd);
-                Jppd::where('tahun', $this->tahun)->update(['created_at' => $created_at]);
-
                 Bangkom::where('tahun', $this->tahun)->delete();
                 foreach (array_chunk($pns, 1000) as $t)
                 {
                     Bangkom::insert($t);
                 }
                 Bangkom::where('tahun', $this->tahun)->update(['created_at' => $created_at]);
+
+                $peda = Bangkom::select('opd')->orderBy('opd')->groupBy('opd')->get();
+
+                Jppd::where('tahun', $this->tahun)->delete();
+                $i = 1;
+
+                foreach($peda as $p)
+                {
+                    $jum_pegawai = Bangkom::where('opd', $p->opd)->where('tahun', $this->tahun)->count();
+                    $total_jp = Bangkom::where('opd', $p->opd)->where('tahun', $this->tahun)->sum('total_jp');
+                    $rata_jp = $total_jp / $jum_pegawai;
+                    $data_pd = new Jppd;
+                    $data_pd->id_skpd = $i++;
+                    $data_pd->lokasi = $p->opd;
+                    $data_pd->tahun = $this->tahun;
+                    $data_pd->jumlah_pegawai = $jum_pegawai;
+                    $data_pd->total_jp = $total_jp;
+                    $data_pd->rata_rata_jp = $rata_jp;
+                    $data_pd->save();
+                }
+
+                Jppd::where('tahun', $this->tahun)->update(['created_at' => $created_at]);
 
                 DB::commit();
 
