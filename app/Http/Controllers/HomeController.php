@@ -223,7 +223,7 @@ class HomeController extends Controller
                 }
                 if(!Auth::user()->hasRole(['super-admin', 'admin']))
                 {
-                    if((Auth::user()->lokasi != $data_pegawai['skpd']))
+                    if((Auth::user()->lokasi != rtrim($data_pegawai['skpd'])))
                         abort(404);
                 }
                 return view('dashboard_pegawai', compact('data_pegawai', 'bangkom'));
