@@ -36,6 +36,10 @@ class TarikData extends Command
                 foreach($data_pns as $p)
                 {
                     $buffer = $p;
+                    $buffer['glr_depan'] = rtrim($p['glr_depan']);
+                    $buffer['glr_belakang'] = rtrim($p['glr_belakang']);
+                    $buffer['jabatan'] = rtrim($p['jabatan']);
+                    $buffer['opd'] = rtrim($p['opd']);
                     $buffer['tahun'] = $tahun;
                     array_push($pns, $buffer);
                 }
@@ -59,7 +63,7 @@ class TarikData extends Command
                     $rata_jp = $total_jp / $jum_pegawai;
                     $data_pd = new Jppd;
                     $data_pd->id_skpd = $i++;
-                    $data_pd->lokasi = $p->opd;
+                    $data_pd->lokasi = rtrim($p->opd);
                     $data_pd->tahun = $tahun;
                     $data_pd->jumlah_pegawai = $jum_pegawai;
                     $data_pd->total_jp = $total_jp;

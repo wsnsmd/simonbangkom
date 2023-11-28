@@ -119,6 +119,10 @@ class HomeController extends Controller
                 foreach($data_pns as $p)
                 {
                     $buffer = $p;
+                    $buffer['glr_depan'] = rtrim($p['glr_depan']);
+                    $buffer['glr_belakang'] = rtrim($p['glr_belakang']);
+                    $buffer['jabatan'] = rtrim($p['jabatan']);
+                    $buffer['opd'] = rtrim($p['opd']);
                     $buffer['tahun'] = $this->tahun;
                     array_push($pns, $buffer);
                 }
@@ -142,7 +146,7 @@ class HomeController extends Controller
                     $rata_jp = $total_jp / $jum_pegawai;
                     $data_pd = new Jppd;
                     $data_pd->id_skpd = $i++;
-                    $data_pd->lokasi = $p->opd;
+                    $data_pd->lokasi = rtrim($p->opd);
                     $data_pd->tahun = $this->tahun;
                     $data_pd->jumlah_pegawai = $jum_pegawai;
                     $data_pd->total_jp = $total_jp;
