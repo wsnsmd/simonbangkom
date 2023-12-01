@@ -377,7 +377,9 @@ class HomeController extends Controller
         $activeWorksheet->setCellValue('B5', 'NIP');
         $activeWorksheet->setCellValue('C5', 'NAMA');
         $activeWorksheet->setCellValue('D5', 'JABATAN');
-        $activeWorksheet->setCellValue('E5', 'TOTAL JP');
+        $activeWorksheet->setCellValue('E5', 'BIDANG');
+        $activeWorksheet->setCellValue('F5', 'SUBBIDANG');
+        $activeWorksheet->setCellValue('G5', 'TOTAL JP');
 
         $activeWorksheet->mergeCells('A1:E1');
         $activeWorksheet->mergeCells('A3:E3');
@@ -387,11 +389,15 @@ class HomeController extends Controller
         $activeWorksheet->getStyle('C5')->getFont()->setBold(true);
         $activeWorksheet->getStyle('D5')->getFont()->setBold(true);
         $activeWorksheet->getStyle('E5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('F5')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('G5')->getFont()->setBold(true);
         $activeWorksheet->getColumnDimension('A')->setWidth(4);
         $activeWorksheet->getColumnDimension('B')->setWidth(20);
         $activeWorksheet->getColumnDimension('C')->setWidth(35);
         $activeWorksheet->getColumnDimension('D')->setWidth(70);
-        $activeWorksheet->getColumnDimension('E')->setWidth(10);
+        $activeWorksheet->getColumnDimension('E')->setWidth(50);
+        $activeWorksheet->getColumnDimension('F')->setWidth(50);
+        $activeWorksheet->getColumnDimension('G')->setWidth(10);
         $activeWorksheet->getRowDimension(5)->setRowHeight(25);
 
         $no = 1;
@@ -403,13 +409,15 @@ class HomeController extends Controller
             $activeWorksheet->setCellValueExplicit('B'.$row, $p->nip_baru, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
             $activeWorksheet->setCellValue('C'.$row, $nama);
             $activeWorksheet->setCellValue('D'.$row, strtoupper($p->jabatan));
-            $activeWorksheet->setCellValue('E'.$row, $p->total_jp);
+            $activeWorksheet->setCellValue('E'.$row, $p->bidang);
+            $activeWorksheet->setCellValue('F'.$row, $p->subbidang);
+            $activeWorksheet->setCellValue('G'.$row, $p->total_jp);
             $activeWorksheet->getRowDimension($row++)->setRowHeight(15);
         }
         $activeWorksheet->setCellValue('A3', 'Update terakhir: ' . $p->created_at);
         $activeWorksheet->getStyle('A3')->getFont()->setItalic(true);
 
-        $activeWorksheet->getStyle('A5:E'.$row-1)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+        $activeWorksheet->getStyle('A5:G'.$row-1)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         $writer = new Xlsx($spreadsheet);
         $writer->save($path = storage_path('simonbangkom-opd-'. time() . '.xlsx'));
         return response()->download($path)->deleteFileAfterSend();

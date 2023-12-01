@@ -17,6 +17,8 @@ class Bangkom extends Model
         'nama',
         'jabatan',
         'opd',
+        'bidang',
+        'subbidang',
         'total_jp',
     ];
 }

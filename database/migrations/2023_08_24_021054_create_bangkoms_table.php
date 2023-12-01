@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('nama');
             $table->string('jabatan');
             $table->string('opd');
+            $table->string('bidang');
+            $table->string('subbidang');
             $table->unsignedInteger('total_jp');
             $table->integer('tahun');
             $table->timestamps();
