@@ -44,17 +44,7 @@ class HomeController extends Controller
         $grafik2['persentase'] = [];
         $grafik2['warna'] = [];
 
-        if(!Auth::user()->hasRole(['super-admin', 'admin']))
-        {
-            $opd = Auth::user()->lokasi;
-            $pd = ViewJppd::where('lokasi', $opd)->where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
-            $pd2 = ViewJppd::where('lokasi', $opd)->where('tahun', $this->tahun)->orderBy('persentase', 'desc')->get();
-            $total_pns = Jppd::where('lokasi', $opd)->where('tahun', $this->tahun)->sum('jumlah_pegawai');
-            $average_jp = Jppd::where('lokasi', $opd)->where('tahun', $this->tahun)->avg('rata_rata_jp');
-            $pns_gt_20 = ViewJppd::where('lokasi', $opd)->where('tahun', $this->tahun)->sum('jp_lebih_20');
-            $pns_lt_20 = ViewJppd::where('lokasi', $opd)->where('tahun', $this->tahun)->sum('jp_kurang_20');
-        }
-        else
+        if(Auth::user()->hasRole(['super-admin', 'admin']))
         {
             // $pd = Jppd::where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
             $pd = ViewJppd::where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
@@ -63,6 +53,26 @@ class HomeController extends Controller
             $average_jp = Jppd::where('tahun', $this->tahun)->avg('rata_rata_jp');
             $pns_gt_20 = ViewJppd::where('tahun', $this->tahun)->sum('jp_lebih_20');
             $pns_lt_20 = ViewJppd::where('tahun', $this->tahun)->sum('jp_kurang_20');
+        }
+        else if(Auth::user()->hasRole(['setda']))
+        {
+            $opd = Auth::user()->lokasi;
+            $pd = ViewJppd::where('lokasi', $opd)->orWhere('lokasi', 'LIKE', 'Biro%')->where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
+            $pd2 = ViewJppd::where('lokasi', $opd)->orWhere('lokasi', 'LIKE', 'Biro%')->where('tahun', $this->tahun)->orderBy('persentase', 'desc')->get();
+            $total_pns = Jppd::where('lokasi', $opd)->orWhere('lokasi', 'LIKE', 'Biro%')->where('tahun', $this->tahun)->sum('jumlah_pegawai');
+            $average_jp = Jppd::where('lokasi', $opd)->orWhere('lokasi', 'LIKE', 'Biro%')->where('tahun', $this->tahun)->avg('rata_rata_jp');
+            $pns_gt_20 = ViewJppd::where('lokasi', $opd)->orWhere('lokasi', 'LIKE', 'Biro%')->where('tahun', $this->tahun)->sum('jp_lebih_20');
+            $pns_lt_20 = ViewJppd::where('lokasi', $opd)->orWhere('lokasi', 'LIKE', 'Biro%')->where('tahun', $this->tahun)->sum('jp_kurang_20');
+        }
+        else
+        {
+            $opd = Auth::user()->lokasi;
+            $pd = ViewJppd::where('lokasi', $opd)->where('tahun', $this->tahun)->orderBy('rata_rata_jp', 'desc')->get();
+            $pd2 = ViewJppd::where('lokasi', $opd)->where('tahun', $this->tahun)->orderBy('persentase', 'desc')->get();
+            $total_pns = Jppd::where('lokasi', $opd)->where('tahun', $this->tahun)->sum('jumlah_pegawai');
+            $average_jp = Jppd::where('lokasi', $opd)->where('tahun', $this->tahun)->avg('rata_rata_jp');
+            $pns_gt_20 = ViewJppd::where('lokasi', $opd)->where('tahun', $this->tahun)->sum('jp_lebih_20');
+            $pns_lt_20 = ViewJppd::where('lokasi', $opd)->where('tahun', $this->tahun)->sum('jp_kurang_20');
         }
 
         foreach($pd as $item)
@@ -171,10 +181,16 @@ class HomeController extends Controller
 
     public function detail($id)
     {
+        $pattern = '/^(Biro|Sekretariat Daerah)\b/i';
         $pd = Jppd::where('id_skpd', $id)->where('tahun', $this->tahun)->first();
         if(!Auth::user()->hasRole(['super-admin', 'admin']))
         {
-            if((Auth::user()->lokasi != $pd->lokasi))
+            if(!Auth::user()->hasRole(['setda']))
+            {
+                if(Auth::user()->lokasi != $pd->lokasi)
+                    abort(404);
+            }
+            else if(!preg_match($pattern, $pd->lokasi))
                 abort(404);
         }
 
@@ -223,7 +239,13 @@ class HomeController extends Controller
                 }
                 if(!Auth::user()->hasRole(['super-admin', 'admin']))
                 {
-                    if((Auth::user()->lokasi != rtrim($data_pegawai['skpd'])))
+                    $pattern = '/^(Biro|Sekretariat Daerah)\b/i';
+                    if(!Auth::user()->hasRole(['setda']))
+                    {
+                        if((Auth::user()->lokasi != rtrim($data_pegawai['skpd'])))
+                            abort(404);
+                    }
+                    else if(!preg_match($pattern, rtrim($data_pegawai['skpd'])))
                         abort(404);
                 }
                 return view('dashboard_pegawai', compact('data_pegawai', 'bangkom'));
