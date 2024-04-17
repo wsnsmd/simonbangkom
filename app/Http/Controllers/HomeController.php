@@ -167,7 +167,10 @@ class HomeController extends Controller
                 {
                     $jum_pegawai = Bangkom::where('opd', $p->opd)->where('tahun', $this->tahun)->count();
                     $total_jp = Bangkom::where('opd', $p->opd)->where('tahun', $this->tahun)->sum('total_jp');
-                    $rata_jp = $total_jp / $jum_pegawai;
+                    if($jum_pegawai > 0)
+                        $rata_jp = $total_jp / $jum_pegawai;
+                    else
+                        $rata_jp = 0;
                     $data_pd = new Jppd;
                     $data_pd->id_skpd = $i++;
                     $data_pd->lokasi = rtrim($p->opd);
