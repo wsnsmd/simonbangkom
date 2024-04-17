@@ -158,7 +158,7 @@ class HomeController extends Controller
                 }
                 Bangkom::where('tahun', $this->tahun)->update(['created_at' => $created_at]);
 
-                $peda = Bangkom::select('opd')->orderBy('opd')->groupBy('opd')->get();
+                $peda = Bangkom::select('opd')->where('tahun', $this->tahun)->orderBy('opd')->groupBy('opd')->get();
 
                 Jppd::where('tahun', $this->tahun)->delete();
                 $i = 1;

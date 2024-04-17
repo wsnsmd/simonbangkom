@@ -62,7 +62,7 @@ class TarikData extends Command
                 }
                 Bangkom::where('tahun', $tahun)->update(['created_at' => $created_at]);
 
-                $peda = Bangkom::select('opd')->orderBy('opd')->groupBy('opd')->get();
+                $peda = Bangkom::select('opd')->where('tahun', $tahun)->orderBy('opd')->groupBy('opd')->get();
 
                 Jppd::where('tahun', $tahun)->delete();
                 $i = 1;
