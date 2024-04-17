@@ -22,8 +22,12 @@ class TarikData extends Command
             DB::beginTransaction();
             $tahun = env('APP_TAHUN');
             $client = new Client(['http_errors' => false, 'verify' => false]);
+            $headers = [
+                'Authorization' => 'Bearer ' . env('SIMASN_BEARER')
+            ];
 
-            $request_pns = $client->get(env('SIMPEG_JP_ALL_PNS') . $tahun . '?api_token=' . env('SIMPEG_KEY'), ['timeout' => 120]);
+            $request_pns = $client->get(env('SIMASN_JP_ALL_PNS') . '?tahun=' . $tahun, ['headers' => $headers, 'timeout' => 120]);
+
             if($request_pns->getStatusCode() == 200)
             {
                 $result_pns = $request_pns->getBody();
@@ -35,11 +39,18 @@ class TarikData extends Command
 
                 foreach($data_pns as $p)
                 {
-                    $buffer = $p;
-                    $buffer['glr_depan'] = rtrim($p['glr_depan']);
-                    $buffer['glr_belakang'] = rtrim($p['glr_belakang']);
+                    // $buffer = $p;
+                    $buffer['nip_baru'] = $p['nip'];
+                    $buffer['nip_lama'] = $p['nip'];
+                    $buffer['nama'] = $p['nama'];
+                    $buffer['glr_depan'] = rtrim($p['gelar_depan']);
+                    $buffer['glr_belakang'] = rtrim($p['gelar_belakang']);
                     $buffer['jabatan'] = rtrim($p['jabatan']);
                     $buffer['opd'] = rtrim($p['opd']);
+                    $buffer['bidang'] = rtrim($p['bidang']);
+                    $buffer['subbidang'] = rtrim($p['subbidang']);
+                    $buffer['subunor'] = rtrim($p['subunor']);
+                    $buffer['total_jp'] = $p['total_jp'];
                     $buffer['tahun'] = $tahun;
                     array_push($pns, $buffer);
                 }

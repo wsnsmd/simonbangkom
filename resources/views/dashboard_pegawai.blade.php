@@ -17,7 +17,7 @@
                             {{ $data_pegawai['nama'] }}
                         </div>
                         <div class="text-sm font-light text-slate-600 dark:text-slate-400 capitalize">
-                            {{ $data_pegawai['skpd'] }}
+                            {{ $data_pegawai['opd'] }}
                         </div>
                     </div>
                 </div>

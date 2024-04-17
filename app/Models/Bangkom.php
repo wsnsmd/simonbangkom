@@ -19,6 +19,7 @@ class Bangkom extends Model
         'opd',
         'bidang',
         'subbidang',
+        'subunor',
         'total_jp',
     ];
 }

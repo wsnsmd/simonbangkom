@@ -37,6 +37,9 @@ class HomeController extends Controller
             ],
         ];
 
+        if(!Bangkom::where('tahun', $this->tahun)->exists())
+            return redirect()->route('dashboard.refresh');
+
         $grafik1['lokasi'] = [];
         $grafik1['jp_rata'] = [];
         $grafik1['warna'] = [];
@@ -115,8 +118,12 @@ class HomeController extends Controller
         {
             DB::beginTransaction();
             $client = new Client(['http_errors' => false, 'verify' => false]);
+            $headers = [
+                'Authorization' => 'Bearer ' . env('SIMASN_BEARER')
+            ];
 
-            $request_pns = $client->get(env('SIMPEG_JP_ALL_PNS') . $this->tahun . '?api_token=' . env('SIMPEG_KEY'), ['timeout' => 120]);
+            $request_pns = $client->get(env('SIMASN_JP_ALL_PNS') . '?tahun=' . $this->tahun, ['headers' => $headers, 'timeout' => 120]);
+
             if($request_pns->getStatusCode() == 200)
             {
                 $result_pns = $request_pns->getBody();
@@ -128,11 +135,18 @@ class HomeController extends Controller
 
                 foreach($data_pns as $p)
                 {
-                    $buffer = $p;
-                    $buffer['glr_depan'] = rtrim($p['glr_depan']);
-                    $buffer['glr_belakang'] = rtrim($p['glr_belakang']);
+                    // $buffer = $p;
+                    $buffer['nip_baru'] = $p['nip'];
+                    $buffer['nip_lama'] = $p['nip'];
+                    $buffer['nama'] = $p['nama'];
+                    $buffer['glr_depan'] = rtrim($p['gelar_depan']);
+                    $buffer['glr_belakang'] = rtrim($p['gelar_belakang']);
                     $buffer['jabatan'] = rtrim($p['jabatan']);
                     $buffer['opd'] = rtrim($p['opd']);
+                    $buffer['bidang'] = rtrim($p['bidang']);
+                    $buffer['subbidang'] = rtrim($p['subbidang']);
+                    $buffer['subunor'] = rtrim($p['subunor']);
+                    $buffer['total_jp'] = $p['total_jp'];
                     $buffer['tahun'] = $this->tahun;
                     array_push($pns, $buffer);
                 }
@@ -217,20 +231,23 @@ class HomeController extends Controller
     {
         try
         {
+            $headers = [
+                'Authorization' => 'Bearer ' . env('SIMASN_BEARER')
+            ];
             $client = new Client(['http_errors' => false, 'verify' => false]);
-            $req_pegawai = $client->get(env('SIMPEG_PNS') . $nip . '/?api_token=' . env('SIMPEG_KEY'));
+            $req_pegawai = $client->get(env('SIMASN_PNS') . $nip, ['headers' => $headers, 'timeout' => 120]);
 
             if($req_pegawai->getStatusCode() == 200)
             {
                 $res_pegawai = $req_pegawai->getBody();
                 $data_pegawai = json_decode($res_pegawai, true);
 
-                if($data_pegawai['status']['kode'] != 200)
+                if($data_pegawai['success'] != true)
                     return redirect()->back()->with('error', $data_pegawai['keterangan']);
 
                 // dd($data_pegawai['nama']);
                 // https://api-simpeg.kaltimbkd.info/pns/rekap-diklat-pegawai/{TAHUN}/{NIPPEGAWAI}/?api_token=TOKEN&page=1
-                $req_bangkom = $client->get(env('SIMPEG_JP_PNS'). $this->tahun . '/' . $nip . '/?api_token=' . env('SIMPEG_KEY'), ['timeout' => 120]);
+                $req_bangkom = $client->get(env('SIMASN_JP_PNS') . '/?nip=' . $nip . '&tahun=' . $this->tahun, ['headers' => $headers, 'timeout' => 120]);
                 if($req_bangkom->getStatusCode() == 200)
                 {
                     $res_bangkom = $req_bangkom->getBody();
@@ -248,6 +265,7 @@ class HomeController extends Controller
                     else if(!preg_match($pattern, rtrim($data_pegawai['skpd'])))
                         abort(404);
                 }
+                $data_pegawai = $data_pegawai['data'];
                 return view('dashboard_pegawai', compact('data_pegawai', 'bangkom'));
             }
         }
