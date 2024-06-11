@@ -95,7 +95,7 @@ class UserController extends Controller
             ],
         ];
 
-        dd(Session::get('tahun'));
+        dd($this->tahun);
 
         $roles = Role::all();
         $pedas = Jppd::where('tahun', $this->tahun)->get();
