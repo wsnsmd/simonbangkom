@@ -178,7 +178,7 @@ class UserController extends Controller
         ];
 
         $roles = Role::all();
-        $pedas = Jppd::all();
+        $pedas = Jppd::where('tahun', $this->tahun)->get();
         return view('users.edit', [
             'user' => $user,
             'pedas' => $pedas,
