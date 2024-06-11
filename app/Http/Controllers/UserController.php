@@ -24,6 +24,7 @@ class UserController extends Controller
     public function __construct()
     {
         $this->authorizeResource(User::class, 'user');
+        $this->tahun = Session::get('apps_tahun');
     }
     /**
      * Display a listing of the resource.
