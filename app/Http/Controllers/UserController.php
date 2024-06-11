@@ -93,6 +93,8 @@ class UserController extends Controller
             ],
         ];
 
+        dd($this->tahun);
+
         $roles = Role::all();
         $pedas = Jppd::where('tahun', $this->tahun)->get();
         return view('users.create', [
