@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\QueryBuilder\QueryBuilder;
 use Illuminate\Support\Facades\Auth;
+use Session;
 
 class UserController extends Controller
 {
@@ -93,7 +94,7 @@ class UserController extends Controller
             ],
         ];
 
-        dd($this->tahun);
+        dd(Session::get('tahun'));
 
         $roles = Role::all();
         $pedas = Jppd::where('tahun', $this->tahun)->get();
