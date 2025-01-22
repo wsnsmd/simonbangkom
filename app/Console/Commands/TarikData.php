@@ -7,6 +7,9 @@ use App\Models\Jppd;
 use App\Models\Bangkom;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+
+use App\Models\ApiToken;
+
 use DB;
 
 class TarikData extends Command
@@ -22,8 +25,9 @@ class TarikData extends Command
             DB::beginTransaction();
             $tahun = env('APP_TAHUN');
             $client = new Client(['http_errors' => false, 'verify' => false]);
+            $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
             $headers = [
-                'Authorization' => 'Bearer ' . env('SIMASN_BEARER')
+                'Authorization' => 'Bearer ' . $tokenData->token
             ];
 
             $request_pns = $client->get(env('SIMASN_JP_ALL_PNS') . '?tahun=' . $tahun, ['headers' => $headers, 'timeout' => 120]);

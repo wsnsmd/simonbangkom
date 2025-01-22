@@ -15,6 +15,7 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Models\ApiToken;
 use DB;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Excel;
@@ -118,8 +119,9 @@ class HomeController extends Controller
         {
             DB::beginTransaction();
             $client = new Client(['http_errors' => false, 'verify' => false]);
+            $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
             $headers = [
-                'Authorization' => 'Bearer ' . env('SIMASN_BEARER')
+                'Authorization' => 'Bearer ' . $tokenData->token
             ];
 
             $request_pns = $client->get(env('SIMASN_JP_ALL_PNS') . '?tahun=' . $this->tahun, ['headers' => $headers, 'timeout' => 120]);
@@ -234,8 +236,9 @@ class HomeController extends Controller
     {
         try
         {
+            $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
             $headers = [
-                'Authorization' => 'Bearer ' . env('SIMASN_BEARER')
+                'Authorization' => 'Bearer ' .  $tokenData->token
             ];
             $client = new Client(['http_errors' => false, 'verify' => false]);
             $req_pegawai = $client->get(env('SIMASN_PNS') . $nip, ['headers' => $headers, 'timeout' => 120]);
