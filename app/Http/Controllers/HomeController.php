@@ -145,9 +145,9 @@ class HomeController extends Controller
                     $buffer['glr_belakang'] = rtrim($p['gelar_belakang']);
                     $buffer['jabatan'] = rtrim($p['jabatan']);
                     $buffer['opd'] = rtrim($p['opd']);
-                    $buffer['bidang'] = rtrim($p['bidang']);
-                    $buffer['subbidang'] = rtrim($p['subbidang']);
-                    $buffer['subunor'] = rtrim($p['subunor']);
+                    // $buffer['bidang'] = rtrim($p['bidang']);
+                    // $buffer['subbidang'] = rtrim($p['subbidang']);
+                    // $buffer['subunor'] = rtrim($p['subunor']);
                     $buffer['total_jp'] = $p['total_jp'];
                     $buffer['tahun'] = $this->tahun;
                     array_push($pns, $buffer);
