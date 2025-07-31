@@ -125,15 +125,20 @@ class HomeController extends Controller
             ];
 
             $request_pns = $client->get(env('SIMASN_JP_ALL_PNS') . '?tahun=' . $this->tahun, ['headers' => $headers, 'timeout' => 120]);
+            $request_pppk = $client->get(env('SIMASN_JP_ALL_PPPK') . '?tahun=' . $tahun, ['headers' => $headers, 'timeout' => 120]);
 
-            if($request_pns->getStatusCode() == 200)
+            if($request_pns->getStatusCode() == 200 && $request_pppk->getStatusCode() == 200)
             {
                 $result_pns = $request_pns->getBody();
+                $result_pppk = $request_pppk->getBody();
                 $json_pns = json_decode($result_pns, true);
+                $json_pppk = json_decode($result_pppk, true);
                 $created_at = now();
 
                 $data_pns = $json_pns['data']['pegawai'];
+                $data_pppk = $json_pppk['data']['pegawai'];
                 $pns = [];
+                $pppk = [];
 
                 foreach($data_pns as $p)
                 {
@@ -144,17 +149,41 @@ class HomeController extends Controller
                     $buffer['glr_depan'] = rtrim($p['gelar_depan']);
                     $buffer['glr_belakang'] = rtrim($p['gelar_belakang']);
                     $buffer['jabatan'] = rtrim($p['jabatan']);
+                    $buffer['jenis_asn'] = 'PNS';
                     $buffer['opd'] = rtrim($p['opd']);
-                    // $buffer['bidang'] = rtrim($p['bidang']);
-                    // $buffer['subbidang'] = rtrim($p['subbidang']);
-                    // $buffer['subunor'] = rtrim($p['subunor']);
+                    $buffer['bidang'] = rtrim($p['bidang']);
+                    $buffer['subbidang'] = rtrim($p['subbidang']);
+                    $buffer['subunor'] = rtrim($p['subunor']);
                     $buffer['total_jp'] = $p['total_jp'];
-                    $buffer['tahun'] = $this->tahun;
+                    $buffer['tahun'] = $tahun;
                     array_push($pns, $buffer);
+                }
+
+                foreach($data_ppp as $p)
+                {
+                    // $buffer = $p;
+                    $buffer['nip_baru'] = $p['nip'];
+                    $buffer['nip_lama'] = $p['nip'];
+                    $buffer['nama'] = $p['nama'];
+                    $buffer['glr_depan'] = rtrim($p['gelar_depan']);
+                    $buffer['glr_belakang'] = rtrim($p['gelar_belakang']);
+                    $buffer['jabatan'] = rtrim($p['jabatan']);
+                    $buffer['jenis_asn'] = 'PPPK';
+                    $buffer['opd'] = rtrim($p['opd']);
+                    $buffer['bidang'] = rtrim($p['bidang']);
+                    $buffer['subbidang'] = rtrim($p['subbidang']);
+                    $buffer['subunor'] = rtrim($p['subunor']);
+                    $buffer['total_jp'] = $p['total_jp'];
+                    $buffer['tahun'] = $tahun;
+                    array_push($pppk, $buffer);
                 }
 
                 Bangkom::where('tahun', $this->tahun)->delete();
                 foreach (array_chunk($pns, 1000) as $t)
+                {
+                    Bangkom::insert($t);
+                }
+                foreach (array_chunk($pppk, 1000) as $t)
                 {
                     Bangkom::insert($t);
                 }
