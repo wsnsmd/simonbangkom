@@ -16,6 +16,7 @@ class Bangkom extends Model
         'glr_belakang',
         'nama',
         'jabatan',
+        'jenis_asn',
         'opd',
         'bidang',
         'subbidang',

@@ -74,10 +74,18 @@
                                             {{ strtoupper($item['jabatan']) }}
                                         </td>
                                         <td class="table-td">
-                                            @if($item['total_jp'] >= 20)
-                                            <span class="badge bg-primary-500 text-white capitalize">{{ $item['total_jp'] }}</span>
+                                            @if($item['jenis_asn'] == 'PNS')
+                                                @if($item['total_jp'] >= 20)
+                                                <span class="badge bg-primary-500 text-white capitalize">{{ $item['total_jp'] }}</span>
+                                                @else
+                                                <span class="badge bg-danger-500 text-white capitalize">{{ $item['total_jp'] }}</span>
+                                                @endif
                                             @else
-                                            <span class="badge bg-danger-500 text-white capitalize">{{ $item['total_jp'] }}</span>
+                                                @if($item['total_jp'] >= 24)
+                                                <span class="badge bg-primary-500 text-white capitalize">{{ $item['total_jp'] }}</span>
+                                                @else
+                                                <span class="badge bg-danger-500 text-white capitalize">{{ $item['total_jp'] }}</span>
+                                                @endif
                                             @endif
                                         </td>
                                         <td class="table-td">
