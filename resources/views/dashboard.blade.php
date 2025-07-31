@@ -22,7 +22,7 @@
                                 <iconify-icon icon="heroicons:users-20-solid"></iconify-icon>
                             </div>
                             <span class="block text-sm text-slate-600 font-medium dark:text-white mb-1">
-                                Total PNS
+                                Total ASN
                             </span>
                             <span class="block mb- text-2xl text-slate-900 dark:text-white font-medium">
                                 {{ number_format($total_pns, 0, ',', '.') }}
@@ -34,7 +34,7 @@
                                 <iconify-icon icon="heroicons:user-group-20-solid"></iconify-icon>
                             </div>
                             <span class="block text-sm text-slate-600 font-medium dark:text-white mb-1">
-                                Total PNS >= 20 JP
+                                Total ASN >= 20 JP
                             </span>
                             <span class="block mb- text-2xl text-slate-900 dark:text-white font-medium">
                                 {{ number_format($pns_gt_20, 0, ',', '.') }}
@@ -46,7 +46,7 @@
                                 <iconify-icon icon="heroicons:user-group-20-solid"></iconify-icon>
                             </div>
                             <span class="block text-sm text-slate-600 font-medium dark:text-white mb-1">
-                                Total PNS < 20 JP
+                                Total ASN < 20 JP
                             </span>
                             <span class="block mb- text-2xl text-slate-900 dark:text-white font-medium">
                                 {{ number_format($pns_lt_20, 0, ',', '.') }}
@@ -127,16 +127,16 @@
                                             {{ __('NAMA PD') }}
                                         </th>
                                         <th scope="col" class="table-th">
-                                            {{ __('JUMLAH PEGAWAI') }}
+                                            {{ __('JUMLAH ASN') }}
                                         </th>
                                         <th scope="col" class="table-th w-44">
-                                            {{ __('JUMLAH PEGAWAI JP >= 20') }}
+                                            {{ __('JUMLAH ASN JP >= 20') }}
                                         </th>
                                         <th scope="col" class="table-th w-44">
-                                            {{ __('JUMLAH PEGAWAI JP < 20') }}
+                                            {{ __('JUMLAH ASN JP < 20') }}
                                         </th>
                                         <th scope="col" class="table-th w-44">
-                                            {{ __('PERSENTASE PEGAWAI') }}
+                                            {{ __('PERSENTASE ASN') }}
                                         </th>
                                         <th scope="col" class="table-th w-44">
                                             {{ __('TOTAL JP') }}
