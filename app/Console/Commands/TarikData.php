@@ -65,7 +65,7 @@ class TarikData extends Command
                     array_push($pns, $buffer);
                 }
 
-                foreach($data_ppp as $p)
+                foreach($data_pppk as $p)
                 {
                     // $buffer = $p;
                     $buffer['nip_baru'] = $p['nip'];
