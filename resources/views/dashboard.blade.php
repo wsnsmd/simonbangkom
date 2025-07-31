@@ -138,9 +138,9 @@
                                         <th scope="col" class="table-th w-44">
                                             {{ __('PERSENTASE ASN') }}
                                         </th>
-                                        <th scope="col" class="table-th w-44">
+                                        <!-- <th scope="col" class="table-th w-44">
                                             {{ __('TOTAL JP') }}
-                                        </th>
+                                        </th> -->
                                         <th scope="col" class="table-th w-44">
                                             {{ __('RATA-RATA JP') }}
                                         </th>                                        
@@ -175,9 +175,9 @@
                                             <span class="badge bg-danger-500 text-white capitalize">{{ round($item['persentase']) }} %</span>
                                             @endif
                                         </td>                                        
-                                        <td class="table-td">
+                                        <!-- <td class="table-td">
                                             {{ $item['total_jp'] }}
-                                        </td>
+                                        </td> -->
                                         <td class="table-td">
                                             @if($item['rata_rata_jp'] >= 20)
                                             <span class="badge bg-primary-500 text-white capitalize">{{ $item['rata_rata_jp'] }}</span>
