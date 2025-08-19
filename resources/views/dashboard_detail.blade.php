@@ -81,10 +81,10 @@
                                                 <span class="badge bg-danger-500 text-white capitalize">{{ $item['total_jp'] }}</span>
                                                 @endif
                                             @else
-                                                @if($item['total_jp'] >= 24)
-                                                <span class="badge bg-primary-500 text-white capitalize">{{ $item['total_jp'] }}</span>
-                                                @else
+                                                @if($item['total_jp'] > 24 || $item['total_jp'] == 0)
                                                 <span class="badge bg-danger-500 text-white capitalize">{{ $item['total_jp'] }}</span>
+                                                @else
+                                                <span class="badge bg-primary-500 text-white capitalize">{{ $item['total_jp'] }}</span>
                                                 @endif
                                             @endif
                                         </td>
