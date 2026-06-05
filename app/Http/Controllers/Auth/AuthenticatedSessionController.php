@@ -17,7 +17,8 @@ class AuthenticatedSessionController extends Controller
      */
     public function create()
     {
-        return view('auth.login');
+        $tahuns = [date("Y") - 1, date("Y")];
+        return view("auth.login", compact("tahuns"));
     }
 
     /**
@@ -31,7 +32,7 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
-        $request->session()->put('apps_tahun', $request->tahun);
+        $request->session()->put("apps_tahun", $request->tahun);
 
         return redirect()->intended(RouteServiceProvider::HOME);
     }
@@ -44,19 +45,19 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
     {
-        Auth::guard('web')->logout();
+        Auth::guard("web")->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        $request->session()->forget('apps_tahun');
+        $request->session()->forget("apps_tahun");
 
-        return redirect('/');
+        return redirect("/");
     }
 
     public function reloadCaptcha()
     {
-        return response()->json(['captcha'=> captcha_img('flat')]);
+        return response()->json(["captcha" => captcha_img("flat")]);
     }
 }

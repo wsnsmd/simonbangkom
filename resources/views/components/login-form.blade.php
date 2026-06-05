@@ -26,7 +26,13 @@
         <label for="tahun" class="block capitalize form-label">{{ __('Tahun') }}</label>
         <div class="relative ">
             <select name="tahun" id="tahun" class="form-control @error('tahun') !border !border-red-500 @enderror">
-                <option value="{{ env('APP_TAHUN') }}" class="py-1 inline-block font-Inter font-normal text-sm text-slate-600">{{ env('APP_TAHUN') }}</option>
+                @foreach($tahuns as $tahun)
+                    <option value="{{ $tahun }}"
+                        {{ old('tahun', env('APP_TAHUN')) == $tahun ? 'selected' : '' }}
+                        class="py-1 inline-block font-Inter font-normal text-sm text-slate-600">
+                        {{ $tahun }}
+                    </option>
+                @endforeach
             </select>
             <x-input-error :messages="$errors->get('tahun')" class="mt-2"/>
         </div>
