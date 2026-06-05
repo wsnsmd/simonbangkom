@@ -14,7 +14,7 @@
         </div>
 
         <!-- START::LOGIN FORM -->
-        <x-login-form></x-login-form>
+        <x-login-form :tahuns="$tahuns" />
         <!-- END::LOGIN FORM -->
     </div>
 </x-guest-layout>
