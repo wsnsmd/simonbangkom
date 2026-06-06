@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
@@ -44,6 +45,12 @@ Route::group(["middleware" => ["auth", "verified"]], function () {
         HomeController::class,
         "getPegawai",
     ])->name("data.pd.pegawai");
+
+    Route::post("/update-tahun", function (Request $request) {
+        $request->validate(["tahun" => "required"]);
+        session(["apps_tahun" => $request->tahun]);
+        return back(); // Kembali ke halaman sebelumnya
+    })->name("update.tahun");
 
     // Locale
     Route::get("setlocale/{locale}", SetLocaleController::class)->name(
